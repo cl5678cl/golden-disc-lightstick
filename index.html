@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -187,7 +188,7 @@
                                         type="text"
                                         placeholder="搜尋藝人..."
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={(e) => setSearchSearchTerm(e.target.value)}
                                         className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-full text-sm text-white focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all placeholder:text-slate-600"
                                     />
                                 </div>
@@ -367,7 +368,7 @@
                                     className={`py-3 px-6 rounded-full font-bold transition-all flex items-center gap-2 ${
                                         isBlinking
                                             ? 'bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-500/50'
-                                            : 'bg-white/90 hover:bg-white text-gray-800 shadow-lg'
+                                            : 'bg-white/90 hover:bg-white text-gray-800 shadow-xl ring-2 ring-black/20' // <-- 這裡加入了 ring-2 ring-black/20
                                     }`}
                                     style={{ color: isBlinking ? '#FFFFFF' : selectedArtist.textColor }}
                                 >
