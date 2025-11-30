@@ -210,11 +210,14 @@
                                         <h2 className="text-xl md:text-2xl font-bold text-yellow-100 mb-3 flex items-center justify-center md:justify-start gap-2">
                                             🇹🇼 台灣粉絲自主應援計劃
                                         </h2>
+                                        {/* START: 修改後的公告內容 */}
                                         <div className="space-y-2 text-slate-200 leading-relaxed font-medium">
-                                            <p>為了讓各位所鍾愛的藝人/偶像，可以享受大巨蛋的粉絲氛圍</p>
-                                            <p className="text-yellow-200">請在各藝人偶像出現舞台時，切換你手上的手燈</p>
-                                            <p>與其他人一起應援，讓他們感受台灣粉絲的自主應援威力吧！</p>
+                                            <p>為了讓各位喜愛的藝人，能夠享受大巨蛋的粉絲氛圍</p>
+                                            <p class="text-yellow-200">邀請粉絲們在各藝人上台時，切換手上的手燈，為他們應援吧！</p>
+                                            <p>應援色請點選以下團體名稱，即可快速查詢</p>
+                                            <p>與在場粉絲一起應援，讓藝人們感受台灣粉絲的熱情吧！</p>
                                         </div>
+                                        {/* END: 修改後的公告內容 */}
                                     </div>
                                 </div>
                             </div>
@@ -367,10 +370,8 @@
                                     className={`py-3 px-6 rounded-full font-bold transition-all flex items-center gap-2 ${
                                         isBlinking
                                             ? 'bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-500/50'
-                                            : 'bg-white/90 hover:bg-white text-black shadow-xl ring-2 ring-black/20' // <-- 修正：將文字顏色固定為 text-black
+                                            : 'bg-white/90 hover:bg-white text-black shadow-xl ring-2 ring-black/20' 
                                     }`}
-                                    // 移除 style={{ color: isBlinking ? '#FFFFFF' : selectedArtist.textColor }}
-                                    // 避免白色按鈕上的文字被應援色覆蓋成白色
                                 >
                                     <Zap className="w-5 h-5" />
                                     {isBlinking ? '停止閃爍' : '啟動閃爍模式'}
