@@ -3,32 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>40th 金唱片應援色指南 (Lightstick App)</title>
-    <!-- 引入 Tailwind CSS CDN -->
+    <title>40th Golden Disc Lightstick Guide</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 React, ReactDOM, Babel 函式庫 -->
+    <!-- React & ReactDOM & Babel -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        /* 自定義 CSS 確保全螢幕模式下的平滑動畫 */
-        #root {
-            min-height: 100vh;
+        body {
+            background-color: #0f172a; /* slate-900 */
         }
+        
         .animate-fade-in {
             animation: fadeIn 0.3s ease-out;
         }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
+
+        .card-light-glow {
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        .group:hover .card-light-glow {
+            box-shadow: 0 0 15px var(--artist-color);
+        }
+
+        /* Blink animation for lightstick mode */
+        @keyframes hard-blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.1; }
+        }
+
+        .animate-blink-mode {
+            animation: hard-blink 0.5s infinite;
+        }
     </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0"
+  }
+}
+</script>
 </head>
-<body class="bg-slate-900">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // 為了在單一 HTML 檔案中使用，我們需要重新定義圖標元件，以取代 lucide-react 的匯入。
+        const { useState, useEffect } = React;
+
+        // --- ICONS ---
+        // Manually defined to ensure the file is standalone without external dependencies
         const Icon = ({ children, className, onClick, ...props }) => (
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -76,16 +108,14 @@
             <Icon {...props}><path d="m3 11 11-5v11.5L3 17z"/><path d="M22 6c-3.1-2.9-7.1-4-11-4h-1a3 3 0 0 0-3 3v13c0 1.7 1.3 3 3 3h1c4 0 8 1.1 11 4"/></Icon>
         );
 
-        const { useState, useEffect } = React;
-
-        // 藝人資料庫 (基於圖片與 2026 金唱片預測陣容)
+        // --- DATA ---
         const artistsData = [
             { id: 1, name: "ALLDAY PROJECT", color: "#FFFFFF", textColor: "#000000", fandom: "Day One", note: "The Black Label 新人，建議使用白色應援" },
             { id: 2, name: "ARrC", color: "#00FFFF", textColor: "#000000", fandom: "TBD", note: "充滿未來感的 Neon Cyan" },
             { id: 3, name: "ATEEZ", color: "#FF5000", textColor: "#FFFFFF", fandom: "ATINY", note: "Aurora Orange，代表色為極光橙" },
-            { id: 4, name: "BOYNEXTDOOR", color: "#5D9CEC", textColor: "#FFFFFF", fandom: "ONEDOOR", note: "像鄰家門一樣清新的藍色" },
+            { id: 4, name: "BOYNEXTDOOR", color: "#5D9CEC", textColor: "#FFFFFF", fandom: "ONEDOOR", note: "像鄰家門一樣清新的藍色", logoUrl: "https://i.postimg.cc/4Nv3WQvy/BOYNEXTDOOR.jpg" },
             { id: 5, name: "CLOSE YOUR EYES", color: "#1A1A1A", colorAlt: "#000000", textColor: "#FFFFFF", fandom: "TBD", note: "概念為 Blackout，建議使用深色/黑色背景或白光" },
-            { id: 6, name: "CORTIS", color: "#00CED1", textColor: "#000000", fandom: "TBD", note: "Color Outside the Lines，使用鮮豔的綠松石色" },
+            { id: 6, name: "CORTIS", color: "#00CED1", textColor: "#000000", fandom: "COER", note: "Color Outside the Lines，使用鮮豔的綠松石色" },
             { id: 7, name: "ENHYPEN", color: "#FFFFFF", textColor: "#000000", fandom: "ENGENE", note: "官方手燈主要為純白色" },
             { id: 8, name: "IVE", color: "#FF0055", textColor: "#FFFFFF", fandom: "DIVE", note: "雖然手燈是白色，但粉紅色/紅色常作為應援變色" },
             { id: 9, name: "izna", color: "#C0C0C0", textColor: "#000000", fandom: "naya", note: "I-LAND 2 出身，建議使用銀白色" },
@@ -93,27 +123,19 @@
             { id: 11, name: "Kiikii", color: "#FFFFE0", textColor: "#000000", fandom: "TBD", note: "活潑的風格，建議使用淡黃色" },
             { id: 12, name: "LE SSERAFIM", color: "#748ffc", textColor: "#FFFFFF", fandom: "FEARNOT", note: "Fearless Blue，無畏藍" },
             { id: 13, name: "MONSTA X", color: "#0F4C81", textColor: "#FFFFFF", fandom: "MONBEBE", note: "官方應援色包含深藍、綠松石與紫色" },
-            { id: 14, name: "NCT WISH", color: "#B9F230", textColor: "#000000", fandom: "NCTzen", note: "Pearl Neo Champagne，標誌性的螢光綠" },
+            { id: 14, name: "NCT WISH", color: "#B9F230", textColor: "#000000", fandom: "NCTzen", note: "Pearl Neo Champagne，標誌性的螢光綠", logoUrl: "https://i.postimg.cc/kgYtWsJk/NCT-WISH.jpg" },
             { id: 15, name: "Stray Kids", color: "#FF0000", textColor: "#FFFFFF", fandom: "STAY", note: "羅盤手燈常在應援時呈現紅色或白色" },
             { id: 16, name: "TWS", color: "#87CEFA", textColor: "#000000", fandom: "42 (SAI)", note: "Sparkling Blue，清爽的藍色" },
             { id: 17, name: "ZEROBASEONE", color: "#0085CA", textColor: "#FFFFFF", fandom: "ZEROSE", note: "Blue Rose，藍玫瑰色" },
             { id: 18, name: "ZO ZAZZ", color: "#FFD700", textColor: "#000000", fandom: "TBD", note: "以金色為主調" },
         ];
 
+        // --- COMPONENTS ---
 
-        const App = () => {
-            const [searchTerm, setSearchTerm] = useState("");
-            const [selectedArtist, setSelectedArtist] = useState(null);
-            const [isLightstickMode, setIsLightstickMode] = useState(false);
-            const [isBlinking, setIsBlinking] = useState(false);
+        // ArtistModal Component
+        const ArtistModal = ({ artist, onClose, onEnterLightstickMode }) => {
             const [copied, setCopied] = useState(false);
 
-            // 搜尋過濾
-            const filteredArtists = artistsData.filter(artist =>
-                artist.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-
-            // 複製顏色代碼
             const copyColor = (color) => {
                 const tempTextArea = document.createElement('textarea');
                 tempTextArea.value = color;
@@ -124,38 +146,152 @@
                     setCopied(true);
                     setTimeout(() => setCopied(false), 2000);
                 } catch (err) {
-                    console.error('無法複製文字:', err);
+                    console.error('Failed to copy', err);
                 }
                 document.body.removeChild(tempTextArea);
             };
 
-            // 處理閃爍效果
-            useEffect(() => {
-                let interval;
-                const screen = document.getElementById('lightstick-screen');
-                
-                if (isLightstickMode && isBlinking) {
-                    interval = setInterval(() => {
-                        if (screen) {
-                            screen.style.opacity = screen.style.opacity === '0.1' ? '1' : '0.1';
-                        }
-                    }, 500); // 0.5秒閃爍一次
-                } else {
-                    if (screen) {
-                        screen.style.opacity = '1'; // 停止閃爍時確保是全亮狀態
-                    }
-                }
-                return () => clearInterval(interval);
-            }, [isLightstickMode, isBlinking]);
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+                    <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-all scale-100" onClick={(e) => e.stopPropagation()}>
+                        {/* Modal Header with Color */}
+                        <div 
+                            className="h-32 relative flex flex-col items-center justify-center p-4"
+                            style={{ backgroundColor: artist.color }}
+                        >
+                            <button 
+                                onClick={onClose}
+                                className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                            <h2 className="text-3xl font-extrabold text-center drop-shadow-md" style={{ color: artist.textColor }}>
+                                {artist.name}
+                            </h2>
+                        </div>
 
-            // 如果進入手燈模式，隱藏捲軸
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-6">
+                            {/* Fandom Info */}
+                            <div className="flex items-center space-x-4 bg-slate-800 p-4 rounded-xl border border-slate-700">
+                                <Info className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                                <div>
+                                    <p className="text-sm font-semibold text-slate-300">應援團名稱 (Fandom)</p>
+                                    <p className="text-xl font-bold text-yellow-300">{artist.fandom}</p>
+                                </div>
+                            </div>
+
+                            {/* Color Code */}
+                            <div className="space-y-3">
+                                <label className="block text-sm font-medium text-slate-400">官方應援色 (Hex Code)</label>
+                                <div className="flex items-center space-x-2">
+                                    <div className="flex-1 bg-slate-800 border border-slate-700 rounded-lg p-3 font-mono text-lg text-yellow-400 truncate">
+                                        {artist.color}
+                                    </div>
+                                    <button
+                                        onClick={() => copyColor(artist.color)}
+                                        className={`p-3 rounded-lg flex items-center justify-center transition-colors ${copied ? 'bg-green-600' : 'bg-yellow-600 hover:bg-yellow-700'}`}
+                                    >
+                                        {copied ? <Check className="w-5 h-5 text-white" /> : <Copy className="w-5 h-5 text-white" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Notes */}
+                            <div className="bg-slate-800 p-4 rounded-xl border border-yellow-500/30">
+                                <h4 className="text-sm font-semibold text-yellow-400 mb-2 flex items-center gap-1">
+                                    <Zap className="w-4 h-4" /> 應援指南
+                                </h4>
+                                <p className="text-slate-300 text-sm">{artist.note}</p>
+                            </div>
+
+                            {/* Enter Lightstick Mode Button */}
+                            <button
+                                onClick={onEnterLightstickMode}
+                                className="w-full py-3 mt-4 text-lg font-bold rounded-xl text-black bg-yellow-400 hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 shadow-xl shadow-yellow-500/30"
+                            >
+                                <Maximize2 className="w-5 h-5" /> 啟動全螢幕應援模式
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // LightstickScreen Component
+        const LightstickScreen = ({ artist, onExit }) => {
+            const [isBlinking, setIsBlinking] = useState(false);
+
+            return (
+                <div
+                    id="lightstick-screen"
+                    className={`fixed inset-0 z-50 transition-colors duration-300 flex flex-col items-center justify-center p-4 cursor-none select-none ${isBlinking ? 'animate-blink-mode' : ''}`}
+                    style={{
+                        backgroundColor: artist.color,
+                        color: artist.textColor,
+                    }}
+                >
+                    <h1 
+                        className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-center drop-shadow-lg p-4 break-words px-2 leading-none" 
+                        style={{ color: artist.textColor }}
+                    >
+                        {artist.name}
+                    </h1>
+                    <p className="text-xl md:text-3xl font-semibold opacity-80 mt-2" style={{ color: artist.textColor }}>
+                        {artist.fandom} 應援中
+                    </p>
+
+                    {/* Controls */}
+                    <div className="fixed bottom-8 flex flex-col items-center space-y-4 cursor-auto z-50">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsBlinking(prev => !prev);
+                            }}
+                            className={`py-3 px-6 rounded-full font-bold transition-all flex items-center gap-2 select-none ${
+                                isBlinking
+                                    ? 'bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-500/50'
+                                    : 'bg-white/90 hover:bg-white text-black shadow-xl ring-2 ring-black/20' 
+                            }`}
+                        >
+                            <Zap className="w-5 h-5" />
+                            {isBlinking ? '停止閃爍' : '啟動閃爍模式'}
+                        </button>
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onExit();
+                            }}
+                            className="py-2 px-4 rounded-full text-sm font-medium bg-black/30 hover:bg-black/50 transition-colors flex items-center gap-1 backdrop-blur-sm select-none"
+                            style={{ color: artist.textColor === '#000000' ? '#000000' : '#FFFFFF' }}
+                        >
+                            <Minimize2 className="w-4 h-4" /> 退出應援模式
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            const [searchTerm, setSearchTerm] = useState("");
+            const [selectedArtist, setSelectedArtist] = useState(null);
+            const [isLightstickMode, setIsLightstickMode] = useState(false);
+
+            // Filter artists
+            const filteredArtists = artistsData.filter(artist =>
+                artist.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                artist.fandom.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            // Lock scroll
             useEffect(() => {
                 if (isLightstickMode) {
                     document.body.style.overflow = 'hidden';
                 } else {
                     document.body.style.overflow = 'auto';
                 }
-                // 清理函式確保退出 Lightstick Mode 時恢復捲軸
                 return () => {
                     document.body.style.overflow = 'auto';
                 };
@@ -163,14 +299,13 @@
 
             return (
                 <div className="min-h-screen bg-slate-900 text-white font-sans selection:bg-yellow-500 selection:text-black">
-                    
-                    {/* 背景裝飾 */}
+                    {/* Background Decorations */}
                     <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
                         <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-yellow-600 to-transparent"></div>
                         <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-900 rounded-full blur-3xl opacity-50"></div>
                     </div>
 
-                    {/* 導覽列 (非全螢幕模式才顯示) */}
+                    {/* Header - Hidden in Lightstick Mode */}
                     {!isLightstickMode && (
                         <header className="relative z-10 sticky top-0 bg-slate-900/90 backdrop-blur-md border-b border-yellow-600/30 px-6 py-4 shadow-lg">
                             <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
@@ -195,11 +330,11 @@
                         </header>
                     )}
 
-                    {/* 主要內容 (非全螢幕模式才顯示) */}
+                    {/* Main Content - Hidden in Lightstick Mode */}
                     {!isLightstickMode && (
                         <main className="relative z-10 max-w-5xl mx-auto px-4 py-8 pb-24">
                             
-                            {/* === 應援計劃公告 === */}
+                            {/* Fan Support Announcement */}
                             <div className="mb-10 relative overflow-hidden rounded-xl border border-yellow-500/50 bg-gradient-to-br from-yellow-900/40 via-slate-900 to-slate-900 shadow-xl">
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-400 to-transparent opacity-70"></div>
                                 <div className="p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
@@ -210,41 +345,48 @@
                                         <h2 className="text-xl md:text-2xl font-bold text-yellow-100 mb-3 flex items-center justify-center md:justify-start gap-2">
                                             🇹🇼 台灣粉絲自主應援計劃
                                         </h2>
-                                        {/* START: 修改後的公告內容 */}
                                         <div className="space-y-2 text-slate-200 leading-relaxed font-medium">
-                                            <p>為了讓各位喜愛的藝人，能夠享受大巨蛋的粉絲氛圍</p>
-                                            <p class="text-yellow-200">邀請粉絲們在各藝人上台時，切換手上的手燈，為他們應援吧！</p>
-                                            <p>應援色請點選以下團體名稱，即可快速查詢</p>
-                                            <p>與在場粉絲一起應援，讓藝人們感受台灣粉絲的熱情吧！</p>
+                                            <p>為了讓各位喜愛的藝人能夠享受今日</p>
+                                            <p className="text-yellow-200 font-semibold">邀請粉絲們在藝人上台時，切換手上的手燈～</p>
+                                            <p>一起應援，讓藝人們感受台灣粉絲的熱情吧！</p>
+                                            <p className="text-xs text-slate-400 mt-1">應援色請點選以下團體名稱，即可快速查詢</p>
                                         </div>
-                                        {/* END: 修改後的公告內容 */}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* 藝人列表網格 */}
+                            {/* Artist Grid */}
                             {filteredArtists.length > 0 ? (
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                     {filteredArtists.map((artist) => (
                                         <button
                                             key={artist.id}
                                             onClick={() => setSelectedArtist(artist)}
-                                            className="group relative overflow-hidden bg-slate-800 rounded-xl border border-slate-700 hover:border-yellow-500/50 transition-all duration-300 flex flex-col items-center text-center shadow-lg hover:shadow-yellow-500/10"
+                                            className="group relative overflow-hidden bg-slate-800 rounded-xl border border-slate-700 hover:border-transparent transition-all duration-300 flex flex-col items-center text-center shadow-lg hover:shadow-yellow-500/20 hover:ring-2 ring-offset-2 ring-offset-slate-900"
+                                            style={{ '--artist-color': artist.color, 'outlineColor': artist.color }}
                                         >
-                                            {/* 顏色光暈預覽 */}
+                                            {/* Gradient Overlay */}
                                             <div 
-                                                className="absolute top-0 inset-x-0 h-1/2 opacity-20 group-hover:opacity-40 transition-opacity duration-500"
+                                                className="absolute top-0 inset-x-0 h-1/2 opacity-20 group-hover:opacity-70 transition-opacity duration-500"
                                                 style={{ background: `linear-gradient(to bottom, ${artist.color}, transparent)` }}
                                             ></div>
                                             
                                             <div className="relative p-6 w-full flex flex-col items-center h-full justify-center">
-                                                {/* 模擬手燈光點 */}
+                                                {/* Lightstick Icon Preview */}
                                                 <div 
-                                                    className="w-16 h-16 rounded-full mb-4 shadow-inner flex items-center justify-center border-4 border-slate-900/50 relative"
-                                                    style={{ backgroundColor: artist.color }}
+                                                    className="w-16 h-16 rounded-full mb-4 shadow-inner flex items-center justify-center border-4 border-slate-900/50 relative card-light-glow overflow-hidden"
+                                                    style={{ backgroundColor: artist.color, '--artist-color': artist.color }}
                                                 >
                                                     <div className="absolute inset-0 rounded-full blur-md opacity-50" style={{ backgroundColor: artist.color }}></div>
-                                                    <Zap className="w-6 h-6 text-white/90 drop-shadow-md z-10" />
+                                                    {artist.logoUrl ? (
+                                                        <img 
+                                                            src={artist.logoUrl} 
+                                                            alt={artist.name} 
+                                                            className="w-full h-full object-cover z-10"
+                                                        />
+                                                    ) : (
+                                                        <Zap className="w-8 h-8 z-10 drop-shadow-lg" style={{ color: artist.textColor }} />
+                                                    )}
                                                 </div>
                                                 
                                                 <h3 className="font-bold text-lg text-white mb-1 group-hover:text-yellow-400 transition-colors">
@@ -266,7 +408,7 @@
                         </main>
                     )}
 
-                    {/* 頁尾 (非全螢幕模式才顯示) */}
+                    {/* Footer */}
                     {!isLightstickMode && (
                         <footer className="relative z-10 py-6 text-center text-slate-600 text-xs border-t border-slate-800 bg-slate-900">
                             <p>© 2026 Golden Disc Awards Fan Support App</p>
@@ -274,130 +416,30 @@
                         </footer>
                     )}
 
-                    {/* 藝人詳情 Modal */}
+                    {/* Artist Detail Modal */}
                     {selectedArtist && !isLightstickMode && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-                            <div className="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-all scale-100">
-                                {/* Modal Header with Color */}
-                                <div 
-                                    className="h-32 relative flex flex-col items-center justify-center p-4"
-                                    style={{ backgroundColor: selectedArtist.color }}
-                                >
-                                    <button 
-                                        onClick={() => setSelectedArtist(null)}
-                                        className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white transition-colors"
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </button>
-                                    <h2 className="text-3xl font-extrabold text-center drop-shadow-md" style={{ color: selectedArtist.textColor }}>
-                                        {selectedArtist.name}
-                                    </h2>
-                                </div>
-
-                                {/* Modal Body */}
-                                <div className="p-6 space-y-6">
-                                    {/* 應援色資訊 */}
-                                    <div className="flex items-center space-x-4 bg-slate-800 p-4 rounded-xl border border-slate-700">
-                                        <Info className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                                        <div>
-                                            <p className="text-sm font-semibold text-slate-300">應援團名稱 (Fandom)</p>
-                                            <p className="text-xl font-bold text-yellow-300">{selectedArtist.fandom}</p>
-                                        </div>
-                                    </div>
-
-                                    {/* 顏色代碼 */}
-                                    <div className="space-y-3">
-                                        <label className="block text-sm font-medium text-slate-400">官方應援色 (Hex Code)</label>
-                                        <div className="flex items-center space-x-2">
-                                            <div className="flex-1 bg-slate-800 border border-slate-700 rounded-lg p-3 font-mono text-lg text-yellow-400 truncate">
-                                                {selectedArtist.color}
-                                            </div>
-                                            <button
-                                                onClick={() => copyColor(selectedArtist.color)}
-                                                className={`p-3 rounded-lg flex items-center justify-center transition-colors ${copied ? 'bg-green-600' : 'bg-yellow-600 hover:bg-yellow-700'}`}
-                                            >
-                                                {copied ? <Check className="w-5 h-5 text-white" /> : <Copy className="w-5 h-5 text-white" />}
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* 備註/指南 */}
-                                    <div className="bg-slate-800 p-4 rounded-xl border border-yellow-500/30">
-                                        <h4 className="text-sm font-semibold text-yellow-400 mb-2 flex items-center gap-1">
-                                            <Zap className="w-4 h-4" /> 應援指南
-                                        </h4>
-                                        <p className="text-slate-300 text-sm">{selectedArtist.note}</p>
-                                    </div>
-
-                                    {/* 進入手燈模式按鈕 */}
-                                    <button
-                                        onClick={() => {
-                                            setIsLightstickMode(true);
-                                        }}
-                                        className="w-full py-3 mt-4 text-lg font-bold rounded-xl text-black bg-yellow-400 hover:bg-yellow-500 transition-colors flex items-center justify-center gap-2 shadow-xl shadow-yellow-500/30"
-                                    >
-                                        <Maximize2 className="w-5 h-5" /> 啟動全螢幕應援模式 (Lightstick Mode)
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <ArtistModal 
+                            artist={selectedArtist} 
+                            onClose={() => setSelectedArtist(null)} 
+                            onEnterLightstickMode={() => setIsLightstickMode(true)}
+                        />
                     )}
 
-                    {/* 全螢幕應援模式 (Lightstick Mode) */}
+                    {/* Full Screen Lightstick Mode */}
                     {selectedArtist && isLightstickMode && (
-                        <div
-                            id="lightstick-screen"
-                            className="fixed inset-0 z-50 transition-opacity duration-500 flex flex-col items-center justify-center p-4 cursor-none"
-                            style={{
-                                backgroundColor: selectedArtist.color,
-                                color: selectedArtist.textColor,
+                        <LightstickScreen 
+                            artist={selectedArtist}
+                            onExit={() => {
+                                setIsLightstickMode(false);
+                                setSelectedArtist(null);
                             }}
-                        >
-                            <h1 
-                                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-center drop-shadow-lg p-4 break-words px-2 leading-none" 
-                                style={{ color: selectedArtist.textColor }}
-                            >
-                                {selectedArtist.name}
-                            </h1>
-                            <p className="text-xl md:text-3xl font-semibold opacity-80 mt-2" style={{ color: selectedArtist.textColor }}>
-                                {selectedArtist.fandom} 應援中
-                            </p>
-
-                            {/* 模式控制按鈕 */}
-                            <div className="fixed bottom-8 flex flex-col items-center space-y-4">
-                                <button
-                                    onClick={() => setIsBlinking(prev => !prev)}
-                                    className={`py-3 px-6 rounded-full font-bold transition-all flex items-center gap-2 ${
-                                        isBlinking
-                                            ? 'bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-500/50'
-                                            : 'bg-white/90 hover:bg-white text-black shadow-xl ring-2 ring-black/20' 
-                                    }`}
-                                >
-                                    <Zap className="w-5 h-5" />
-                                    {isBlinking ? '停止閃爍' : '啟動閃爍模式'}
-                                </button>
-
-                                <button
-                                    onClick={() => {
-                                        setIsLightstickMode(false);
-                                        setIsBlinking(false);
-                                        setSelectedArtist(null);
-                                    }}
-                                    className="py-2 px-4 rounded-full text-sm font-medium bg-black/30 hover:bg-black/50 transition-colors flex items-center gap-1"
-                                    style={{ color: selectedArtist.textColor }}
-                                >
-                                    <Minimize2 className="w-4 h-4" /> 退出應援模式
-                                </button>
-                            </div>
-                        </div>
+                        />
                     )}
                 </div>
             );
         };
 
-        // 渲染 React 應用程式 (React 18 新方法: createRoot)
         const container = document.getElementById('root');
-        // 確保 container 存在，避免錯誤
         if (container) {
             const root = ReactDOM.createRoot(container);
             root.render(<App />);
